@@ -11,8 +11,8 @@ namespace {
         printf("\033[%u;%uH", row, col);
     }
 
-    void replaceChar(unsigned int row, unsigned int col, char c) {
-        printf("\033[%u;%uH%c", row, col, c);
+    void replacePixel(unsigned int row, unsigned int col, TerminalPixel c) {
+        printf("\033[%u;%uH%c", row, col, c.value);
     }
 
     void clearScreen() {
@@ -26,9 +26,9 @@ void TerminalWriter::init(RowCol dimensions, RowCol offset) {
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     mTerminalDims.row = w.ws_row;
     mTerminalDims.col = w.ws_col;
-    mCurrentWindow.resize(mTerminalDims.row);
+    mCurrentWindow.resize(dimensions.row);
     for (int i = 0; i < mCurrentWindow.size(); i++) {
-        mCurrentWindow[i].resize(mTerminalDims.col);
+        mCurrentWindow[i].resize(dimensions.col);
     }
     mWindowDims = dimensions;
     mOffset = offset;
@@ -48,16 +48,16 @@ TerminalWriter::TerminalWriter(RowCol dimensions, RowCol offset) {
     init(dimensions, offset);
 } 
 
-void TerminalWriter::rawWritePixel(RowCol offset, char pixel) {
+void TerminalWriter::rawWritePixel(RowCol offset, TerminalPixel pixel) {
     size_t row = mOffset.row + offset.row;
     size_t col = mOffset.col + offset.col;
-    mCurrentWindow[row][col] = pixel;
-    replaceChar(row, col, pixel);
+    mCurrentWindow[offset.row][offset.col] = pixel;
+    replacePixel(row, col, pixel);
 }
 
-void TerminalWriter::writeAll(std::vector<std::string> &window) {
+void TerminalWriter::writeAll(TerminalPixelMatrix &window) {
     for (int i = 0; i < window.size(); i++) {
-        std::string row = window[i];
+        std::vector<TerminalPixel>& row = window[i];
         for (int j = 0; j < row.size(); j++) {
             RowCol offset(i, j);
             rawWritePixel(offset, row[j]);
@@ -66,11 +66,36 @@ void TerminalWriter::writeAll(std::vector<std::string> &window) {
     moveCursor(1, 1);
 }
 
-void TerminalWriter::writePixel(RowCol offset, char pixel) {
+void TerminalWriter::writePixel(RowCol offset, TerminalPixel pixel) {
     rawWritePixel(offset, pixel);
     moveCursor(1, 1);
 }
 
-std::vector<std::string> TerminalWriter::getWindow() {
+TerminalPixelMatrix TerminalWriter::getWindow() {
     return mCurrentWindow;
+}
+
+void TerminalWriter::writeChunk(RowCol baseOffset, TerminalPixelMatrix &chunk) {
+    for (int i = 0; i < chunk.size(); i++) {
+        std::vector<TerminalPixel>& row = chunk[i];
+        RowCol chunkOffset(baseOffset.row + i, 0);
+        for (int j = 0; j < row.size(); j++) {
+            chunkOffset.col = baseOffset.col + j; 
+            if(mCurrentWindow[chunkOffset.row][chunkOffset.col] != row[j]) {
+                rawWritePixel(chunkOffset, row[j]);
+            } 
+        }
+    }
+    moveCursor(1, 1);
+}
+
+void TerminalWriter::forcePrint() {
+    moveCursor(1, 1);
+    for(int i = 0; i < mCurrentWindow.size(); i++) {
+        for(int j = 0; j < mCurrentWindow[i].size(); j++) {
+            printf("%c", mCurrentWindow[i][j].value);
+        }
+        printf("\n");
+    }
+
 }
