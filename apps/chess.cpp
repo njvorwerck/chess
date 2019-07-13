@@ -47,17 +47,33 @@ int main (int argc, char **argv)
 
     TerminalWriter termWriter(dims, offset);
 
-    std::vector<std::string> window;
+    TerminalPixelMatrix window;
     window.resize(10);
     for (int i = 0; i < 10; i++) {
-        window[i] = "abcdefghij";
+        window[i].resize(10);
+        for (int j = 0; j < 10; j++) {
+            window[i][j] = TerminalPixel('a');
+        }
     }
 
     termWriter.writeAll(window);
 
     offset.row = 9;
     offset.col = 9;
-    termWriter.writePixel(offset, 'z');
+    termWriter.writePixel(offset, TerminalPixel('z'));
+
+    TerminalPixelMatrix chunk;
+    chunk.resize(3);
+    for (int i = 0; i < 3; i++) {
+        chunk[i].resize(3); 
+        chunk[i][0] = TerminalPixel('0');
+        chunk[i][1] = TerminalPixel('0');
+        chunk[i][2] = TerminalPixel('0');
+    }
+
+    offset.row = 4;
+    offset.col = 4;
+    termWriter.writeChunk(offset, chunk);
 
 
     return 0;  
