@@ -6,15 +6,16 @@
 
 #include "UtilityTypes.h"
 
-enum Color { white, black, grey, red, green, blue };
+enum Color : unsigned int { black, maroon, green, brown, violet, purple, teal, 
+    lightGrey, grey, red, neonGreen, yellow, blue, magenta, neonTeal, white };
 
 struct TerminalPixel {
     Color bgColor;
     Color fontColor;
     char value;
 
-    TerminalPixel(char value_in = '0', Color bgColor_in = black, Color fontColor_in = white)
-        : value(value_in), bgColor(bgColor_in), fontColor(fontColor_in) {}
+    TerminalPixel(char value_in = '0', Color fontColor_in = white, Color bgColor_in = black)
+        : value(value_in), fontColor(fontColor_in), bgColor(bgColor_in) {}
 
     bool operator==(const TerminalPixel &a) {
         return a.value == this->value && a.bgColor == this->bgColor && a.fontColor == this->fontColor;
@@ -26,6 +27,9 @@ struct TerminalPixel {
 };
 
 typedef std::vector<std::vector<TerminalPixel>> TerminalPixelMatrix;
+
+void printTerminalPixelMatrix(TerminalPixelMatrix& matrix);
+
 
 /**
   * This class provides a "window" into the terminal
