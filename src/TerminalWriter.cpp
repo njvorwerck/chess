@@ -11,7 +11,17 @@ namespace {
         printf("\033[%u;%uH", row, col);
     }
 
+    void changeForeground(Color color) {
+        printf("\033[38;5;%um", color);
+    }
+
+    void changeBackground(Color color) {
+        printf("\033[48;5;%um", color);
+    }
+
     void replacePixel(unsigned int row, unsigned int col, TerminalPixel c) {
+        changeForeground(c.fontColor);
+        changeBackground(c.bgColor);
         printf("\033[%u;%uH%c", row, col, c.value);
     }
 
@@ -90,12 +100,15 @@ void TerminalWriter::writeChunk(RowCol baseOffset, TerminalPixelMatrix &chunk) {
 }
 
 void TerminalWriter::forcePrint() {
+    printTerminalPixelMatrix(mCurrentWindow);
+}
+
+void printTerminalPixelMatrix(TerminalPixelMatrix& matrix) {
     moveCursor(1, 1);
-    for(int i = 0; i < mCurrentWindow.size(); i++) {
-        for(int j = 0; j < mCurrentWindow[i].size(); j++) {
-            printf("%c", mCurrentWindow[i][j].value);
+    for(int i = 0; i < matrix.size(); i++) {
+        for(int j = 0; j < matrix[i].size(); j++) {
+            printf("%c", matrix[i][j].value);
         }
         printf("\n");
     }
-
 }
