@@ -4,6 +4,8 @@
 #include "UtilityTypes.h"
 #include "GamePiece.h"
 
+class GamePiece;
+
 class Board {
 
 public:
