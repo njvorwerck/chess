@@ -3,13 +3,17 @@
 
 #include "GamePiece.h"
 
-class Queen : protected GamePiece {
+class Queen : public GamePiece {
 
 public:
 
-    virtual bool canMove(Board& board, Position position);
+    Queen(Position position, bool color) : GamePiece(position, color) { }
 
-    virtual vector<Position> possibleMoves();
+    virtual bool canMove(Board& board, Position position) { return true; }
+
+    virtual std::vector<Position> possibleMoves() { return std::vector<Position>(); }
+
+    virtual char getCharRepresentation() { return 'Q'; }
 
 };
 
