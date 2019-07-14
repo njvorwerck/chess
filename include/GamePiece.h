@@ -18,7 +18,9 @@ public:
 
     virtual bool canMove(Board& board, Position position) = 0;
 
-    virtual vector<Position> possibleMoves() = 0;
+    virtual std::vector<Position> possibleMoves() = 0;
+
+    virtual char getCharRepresentation() = 0;
 
 protected:
 
